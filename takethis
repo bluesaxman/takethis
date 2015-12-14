@@ -1,0 +1,84 @@
+#!/usr/bin/perl -w
+use warnings;
+use strict;
+
+$|=1; #Turn off input buttering so that we can do fancy text things.
+
+system("tput reset"); #Clear the screen
+
+#This is for waiting for less than a second. Currently its setup to wait for 1/100th of a second
+sub uwaiter {
+  my $long = $_[0];
+  my $i=1;
+  while($i<=$long){
+    select(undef,undef,undef,0.01);
+    print "";
+    $i++;
+  }
+  return 0;
+}
+
+#This creates the message box on the screen before we print anything to it.
+sub print_m_box {
+  system("tput cup 10 1");
+  print "/".("-"x50)."\\\n";
+  for(my $l=$_[0];$l>0;$l--) {print " |".(" "x50)."|\n";}
+  print " \\".("-"x50)."/\n";
+  system("tput cup 11 0");
+}
+
+#This loops through the input it is given and prints the message out one character
+#at a time untill the box ix filled and them is supposed to wait for the user to hit
+#enter.
+sub print_message {
+  &print_m_box(3);
+  my @message = split("",$_[0]);
+  while(@message) {
+    print " | ";
+    for(my $x=0;$x<48;$x++) {
+      my $char = shift(@message);
+      if($char){
+        print "$char";
+        &uwaiter(5);
+      }
+      else {print " ";}
+    }
+    print "\n";
+  }
+  print "\n";
+  system("tput cup 14 15");
+  print "<Enter to continue>";
+  &pauser();
+}
+
+#This is supposed to pause things and wait for the user to hit enter, this works
+#when feeding the scipt from $ARGV[0] but it does not stop when in pipe mode.
+sub pauser {
+ <STDIN>;
+}
+
+#This takes the input its given, determins if it will fit in the message box, and
+#if its too long, spilts it into multipul peaces for print_message to handle.
+sub new_message {
+  if (length($_[0]) > 144) {
+    my @messages = $_[0] =~ m[.{1,144}]g;
+    while(@messages) {
+      &print_message(shift(@messages));
+    }
+  }
+  else {
+    &print_message($_[0]);
+  }
+}
+
+#Here is the main script, everything above is contained in functions.
+my $texts = "";
+if ($ARGV[0]) {$texts = $ARGV[0];}
+else {
+   while (<STDIN>) {
+      $texts = $texts." ".<STDIN>;
+      chomp($texts);
+   }
+}
+   &new_message($texts);
+   system("tput reset");
