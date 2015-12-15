@@ -2,19 +2,13 @@
 use warnings;
 use strict;
 
-$|=1; #Turn off input buttering so that we can do fancy text things.
+$|=1; #Turn off output buffering so that we can do fancy text things.
 
 system("tput reset"); #Clear the screen
 
 #This is for waiting for less than a second. Currently its setup to wait for 1/100th of a second
 sub uwaiter {
-  my $long = $_[0];
-  my $i=1;
-  while($i<=$long){
-    select(undef,undef,undef,0.01);
-    print "";
-    $i++;
-  }
+    select(undef,undef,undef,shift/100);
   return 0;
 }
 
