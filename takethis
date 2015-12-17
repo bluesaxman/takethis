@@ -3,8 +3,12 @@ use warnings;
 use strict;
 
 $|=1; #Turn off output buffering so that we can do fancy text things.
+my $Scr_reset = system("tput reset");
+my $msg_start = system("tput cup 10 1");
+my $msg_cont = system("tput cup 11 0");
+my $msg_end = system("tput cup 14 15");
 
-system("tput reset"); #Clear the screen
+print $Scr_reset; #Clear the screen
 
 #This is for waiting for less than a second. Currently its setup to wait for 1/100th of a second
 sub uwaiter {
@@ -14,11 +18,9 @@ sub uwaiter {
 
 #This creates the message box on the screen before we print anything to it.
 sub print_m_box {
-  system("tput cup 10 1");
-  print "/".("-"x50)."\\\n";
+  print $msg_start."/".("-"x50)."\\\n";
   for(my $l=$_[0];$l>0;$l--) {print " |".(" "x50)."|\n";}
-  print " \\".("-"x50)."/\n";
-  system("tput cup 11 0");
+  print " \\".("-"x50)."/\n".$msg_cont;
 }
 
 #This loops through the input it is given and prints the message out one character
@@ -39,9 +41,7 @@ sub print_message {
     }
     print "\n";
   }
-  print "\n";
-  system("tput cup 14 15");
-  print "<Enter to continue>";
+  print "\n".$msg_end."<Enter to continue>";
   &pauser();
 }
 
@@ -75,4 +75,4 @@ else {
    }
 }
    &new_message($texts);
-   system("tput reset");
+   print $Scr_reset;
