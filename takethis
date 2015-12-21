@@ -48,6 +48,7 @@ sub print_message {
 #This is supposed to pause things and wait for the user to hit enter, this works
 #when feeding the scipt from $ARGV[0] but it does not stop when in pipe mode.
 sub pauser {
+ if($pipeflag) {&uwaiter(200)}
  <STDIN>;
 }
 
@@ -67,7 +68,7 @@ sub new_message {
 
 #Here is the main script, everything above is contained in functions.
 my $texts = "";
-if ($ARGV[0]) {$texts = $ARGV[0];}
+if ($ARGV[0]) {$texts = $ARGV[0];my $pipeflag=1;}
 else {
    while (<STDIN>) {
       $texts = $texts." ".<STDIN>;
